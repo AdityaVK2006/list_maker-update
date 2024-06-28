@@ -1,30 +1,37 @@
-
-import clear from '@/components/clear'
-import deleteHandler from '@/components/deleteHandler'
-import getData from '@/components/getData'
-import prisma from '@/lib/prisma'
-import Link from 'next/link'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import React from 'react'
 
-const page = async () => {
-
-  const data = await prisma.user.findMany()
+const page = () => {
   return (
     <div>
-      <h1>List</h1>
-      <form action={getData}>
-        <input type='text' name='new_item' placeholder='Add new item' />
-        <button className='add'>Add</button>
+      <h1 >Welcome to my LIST</h1>
+      <h2>New here??</h2>
+      <h2>Create a new user.</h2>
+      <form action={async (formData) => {
+        'use server'
+        await prisma.owner.create({
+          data: {
+            owner_name: formData.get('u_name')
+          }
+        })
+        revalidatePath('/')
+      }}>
+        <input type='text' name='u_name' placeholder='Your name here' />
+        <button className='add'>Create</button>
       </form>
-      <hr/>
-      <ol>
-        {data.map((t) => (
-          <li key={t.id}><Link href={`/${t.id}`} >{ t.item_name }</Link></li>
-        ))}
-      </ol>
-      <form action={clear}>
-        <button className='clear'>Clear</button>
-      </form>
+
+      <div style={{marginTop: "40vh"}}>
+        <h1 style={{ fontSize: "5vh" }}>Already Created a user??</h1>
+        <form action={async (formData) => {
+          'use server'
+          const route = formData.get('r_name')
+          redirect(`/${route}`)
+        }}>
+          <input type='text' name='r_name' placeholder='Enter your name' />
+          <button className='add' style={{ backgroundColor: 'green', border:'none' }}>My list</button>
+        </form>
+      </div>
     </div>
   )
 }

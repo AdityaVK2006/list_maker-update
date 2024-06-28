@@ -14,9 +14,18 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
-model user{
-  id Int @id @default(autoincrement())
-  item_name String 
-  status Boolean @default(true)
-  created_At DateTime @default(now())
+model owner{
+  owner_id String @id @default(cuid())
+  owner_name String @unique
+  items user[]
 }
+
+model user{
+  id Int @id @unique @default(autoincrement())
+  item_name String 
+  purchased Boolean @default(false)
+  created_At DateTime @default(now())
+  owner owner @relation(fields: [owner_name], references: [owner_name])
+  owner_name String
+}
+
